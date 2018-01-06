@@ -9,6 +9,13 @@ sub sha256(Blob $msg)  {
     my $digest = buf8.allocate(SHA256_DIGEST_LENGTH);
     SHA256($msg, $msg.bytes, $digest);
     $digest;
+
+}
+
+# concatenates the $secret and the $move and sha256 it
+sub sha256-commitment($secret, $move) {
+    my @sha256bytes := sha256(($secret ~ $move).encode());
+    return @sha256bytes.map(*.base(16).Str).join;
 }
 
 # Our two players
@@ -49,12 +56,6 @@ sub S-P-R {
         $res = S-P-R();
     }
     return $res;
-}
-
-# concatenates the secret ($salt) and the $move and sha256 it
-sub sha256-commitment($salt, $move) {
-    my @sha256bytes := sha256(($salt ~ $move).encode());
-    return @sha256bytes.map(*.base(16).Str).join;
 }
 
 sub TURN($player) {
