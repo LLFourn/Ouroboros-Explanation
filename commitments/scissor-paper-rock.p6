@@ -1,21 +1,24 @@
 use NativeCall;
 
-# use openSSL for SHA256
-# Derived from https://github.com/sergot/openssl
+# YOU WILL NEED OPENSSL INSTALLED FOR THIS TO RUN
+# YMMV on windows. If you're desperate to get it to work:
+# Look at https://github.com/sergot/openssl
+
 constant SHA256_DIGEST_LENGTH = 32;
 
-sub SHA256( Blob, size_t, Blob ) is native('ssl') { ... }
+sub SHA256(Blob, size_t, Blob) is native('ssl') { ... }
 sub sha256(Blob $msg)  {
     my $digest = buf8.allocate(SHA256_DIGEST_LENGTH);
     SHA256($msg, $msg.bytes, $digest);
-    $digest;
-
+    return $digest;
 }
 
-# concatenates the $secret and the $move and sha256 it
-sub sha256-commitment($secret, $move) {
+my &byte-to-hex = &sprintf.assuming('%02x');
+# concatenates the $secret and the $move and return the
+# sha256 as hex string
+sub COMMIT($secret, $move) {
     my @sha256bytes := sha256(($secret ~ $move).encode());
-    return @sha256bytes.map(*.base(16).Str).join;
+    return @sha256bytes».&byte-to-hex.join;
 }
 
 # Our two players
@@ -44,11 +47,14 @@ sub secret-prompt($msg){
     return $res;
 }
 
+sub CHOOSE-SECRET($player) {
+    secret-prompt("$player, give me a random secret (remember it):");
+}
+
 # Prompt to choose Scissor, Paper or Rock
 sub S-P-R {
-    my $res = secret-prompt('[S]cissor [P]aper [R]ock?');
-    if $res ~~ m:i/ <[spr]> /  {
-        $res .= uc;
+    my $res = secret-prompt('[S]cissor [P]aper [R]ock?').uc;
+    if $res eq <S P R>.any {
         return @moves.first(*.starts-with($res));
     }
     else {
@@ -58,17 +64,10 @@ sub S-P-R {
     return $res;
 }
 
-sub TURN($player) {
+sub CHOOSE-MOVE($player) {
     say "$player, choose a move.";
     my $move =  S-P-R();
     return $move;
-}
-
-# commitment stage
-sub COMMIT($player) {
-    my $secret = secret-prompt("$player, give me a random secret (remember it):");
-    my $move = TURN($player);
-    return sha256-commitment($secret, $move);
 }
 
 sub CLAIM($player) {
@@ -76,14 +75,6 @@ sub CLAIM($player) {
     say "$player, what do you claim to have chosen?";
     my $claim = S-P-R();
     return $secret, $claim;
-}
-
-# verify
-sub VERIFY($secret, $claim, $commitment) {
-    my $claim-commitment = sha256-commitment($secret, $claim);
-    say "claim:      ", $claim-commitment;
-    say "commitment: ", $commitment;
-    return $commitment eq $claim-commitment;
 }
 
 sub CHECK-RESULT($moveₐ, $moveᵣ) {
@@ -96,31 +87,38 @@ sub CHECK-RESULT($moveₐ, $moveᵣ) {
         default                   { 🧔🏾 } # bob wins
     }
 
-    if $result {
-        say "$result wins!";
-    }
-    else {
-        say 'Alice and Bob tied!';
-    }
+    say "Rob played $moveᵣ, Alice played $moveₐ.";
+    say $result ?? "$result wins!" !! 'Alice and Bob tied!';
 }
 
-# Alice sends her commitment to Scissor, Paper or Rock to Rob
-my $commitmentₐ = COMMIT(🧑🏻);
-🧑🏻 ⟹ { :$commitmentₐ };
+
+my \𝒄 = do {
+    # Prompt alice for her move and secret
+    my \𝒔 = CHOOSE-SECRET(🧑🏻);
+    my \𝓶 = CHOOSE-MOVE(🧑🏻);
+    # Return the resulting commitment
+    COMMIT(𝒔, 𝓶);
+};
+
+# Alice sends her commitment to Rob
+🧑🏻 ⟹ { commitment => 𝒄 };
 
 # Rob sends his move to Alice
-my $moveᵣ = TURN(🧔🏾);
-🧔🏾 ⟹ { :$moveᵣ };
+my \𝓶ᵣ = CHOOSE-MOVE(🧔🏾);
+🧔🏾 ⟹ { move => 𝓶ᵣ };
 
 # Alice sends what she claims to have originally chosen to Rob
 # along with the secret
-my ($secretₐ, $move-claimₐ) = CLAIM(🧑🏻);
-🧑🏻 ⟹  { :$secretₐ, :$move-claimₐ };
+my (\𝒔ʹ, \𝓶ʹ) = CLAIM(🧑🏻);
+🧑🏻 ⟹  { secret => 𝒔ʹ, move => 𝓶ʹ };
 
-# Rob (and any observers) verify Alice's claim
-if VERIFY($secretₐ, $move-claimₐ, $commitmentₐ) {
-    # see who won
-    CHECK-RESULT($move-claimₐ, $moveᵣ);
+my \𝒄ʹ = COMMIT(𝒔ʹ, 𝓶ʹ);
+
+say "Alice's claim: {𝒄ʹ}";
+
+if 𝒄ʹ eq  𝒄 {
+    say ‘Alice's claim is the same as her commitment.’;
+    CHECK-RESULT(𝓶ʹ, 𝓶ᵣ);
 }
 else {
     say "Alice is lying! Her claim is not the same as her commitment.";
