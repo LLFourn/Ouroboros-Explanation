@@ -43,7 +43,7 @@ sub secret-prompt($msg){
     # Read a line from STDIN
     my $res = $*IN.get();
     # Put n number of Xs over the previous line
-    $*OUT.print("\e[A\r" ~ 'X' x $res.chars ~ "\n");
+    $*OUT.print("\e[A\r" ~ 'X' x 40 ~ ' ' x ($res.chars - 40) ~ "\n");
     return $res;
 }
 
@@ -95,30 +95,30 @@ sub CHECK-RESULT($moveₐ, $moveᵣ) {
 my \𝒄 = do {
     # Prompt alice for her move and secret
     my \𝒔 = CHOOSE-SECRET(🧑🏻);
-    my \𝓶 = CHOOSE-MOVE(🧑🏻);
+    my \𝑚 = CHOOSE-MOVE(🧑🏻);
     # Return the resulting commitment
-    COMMIT(𝒔, 𝓶);
+    COMMIT(𝒔, 𝑚);
 };
 
 # Alice sends her commitment to Rob
 🧑🏻 ⟹ { commitment => 𝒄 };
 
 # Rob sends his move to Alice
-my \𝓶ᵣ = CHOOSE-MOVE(🧔🏾);
-🧔🏾 ⟹ { move => 𝓶ᵣ };
+my \𝑚ᵣ = CHOOSE-MOVE(🧔🏾);
+🧔🏾 ⟹ { move => 𝑚ᵣ };
 
 # Alice sends what she claims to have originally chosen to Rob
 # along with the secret
-my (\𝒔ʹ, \𝓶ʹ) = CLAIM(🧑🏻);
-🧑🏻 ⟹  { secret => 𝒔ʹ, move => 𝓶ʹ };
+my (\𝒔ʹ, \𝑚ʹ) = CLAIM(🧑🏻);
+🧑🏻 ⟹  { secret => 𝒔ʹ, move => 𝑚ʹ };
 
-my \𝒄ʹ = COMMIT(𝒔ʹ, 𝓶ʹ);
+my \𝒄ʹ = COMMIT(𝒔ʹ, 𝑚ʹ);
 
 say "Alice's claim: {𝒄ʹ}";
 
 if 𝒄ʹ eq  𝒄 {
     say ‘Alice's claim is the same as her commitment.’;
-    CHECK-RESULT(𝓶ʹ, 𝓶ᵣ);
+    CHECK-RESULT(𝑚ʹ, 𝑚ᵣ);
 }
 else {
     say "Alice is lying! Her claim is not the same as her commitment.";
