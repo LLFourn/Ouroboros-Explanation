@@ -60,7 +60,10 @@ sub CHOOSE-RANDOMNESS($player --> ℤ𝒒) {
     );
 
     return do given $randomness {
-        when 'H' { $ℤ𝒒.pick() }
+                 # Clever way of ensuring we don't get powers of two or 0
+                 # Check if the least signigicant bit is the same as the
+                 # most significant bit.
+        when 'H' { $ℤ𝒒.roll(*).first({ .lsb !~~ .msb }) }
         default { .Int }
     }
 }
