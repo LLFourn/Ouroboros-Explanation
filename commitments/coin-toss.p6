@@ -1,4 +1,4 @@
-[]# The players
+# The players
 sub term:<🧑🏻> { 'Alice' }
 sub term:<🧔🏾> { 'Rob'  }
 constant &print-hex := '0x' ~ *.base(16).lc;
