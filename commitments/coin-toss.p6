@@ -115,11 +115,14 @@ sub MAIN {
     my ℤ𝒒 \𝒔ᵣ = CHOOSE-RANDOMNESS(🧔🏾);
     🧔🏾 ⟹ { randomness => 𝒔ᵣ };
 
+    # Ask Alice what her claim was
     my ℤ𝒒 \𝒔ₐʹ = CLAIM(🧑🏻);
     🧑🏻 ⟹  { randomness => 𝒔ₐʹ };
 
+    # Calculate what the commitment should be from the claim
     my 𝔾 \𝒄ʹ = COMMIT(𝒔ₐʹ);
 
+    # Check they're the same
     if 𝒄ʹ eq  𝒄 {
         say "{🧑🏻}'s claim is the same as her commitment.";
         my \𝒔 = 𝒔ᵣ ⊕ 𝒔ₐʹ;
