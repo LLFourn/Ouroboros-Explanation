@@ -29,9 +29,10 @@ subset 𝔾 of ℤ𝒑 where *.&expmod(𝒒, 𝒑) == 1;
 # define new operator ⊕ as bitwise xor
 constant &infix:<⊕> := &[+^];
 
+# Put 40 Xs over the previous line's input
 sub read-line {
     my $res = $*IN.get();
-    $*OUT.print("\e[A\r" ~ 'X' x 40 ~ ' ' x ($res.chars - 40) ~ "\n");
+    $*OUT.print: "\e[A\r" ~ 'X' x 40 ~ ' ' x ($res.chars - 40) ~ "\n";
     return $res;
 }
 
