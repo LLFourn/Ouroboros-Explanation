@@ -109,7 +109,7 @@ sub MAIN {
     }
 
     # Send the commitment and the move in the clear to Rob
-    🧑🏻 ⟹  { commitment => 𝒄, move => 𝑚 };
+    🧑🏻 ⟹  { commitment => 𝒄, move => 𝑚.Str };
 
     # Rob doesn't have to choose a move, his move is just the opposite of Alice's
     my ℤ𝒒 \𝒔ᵣ = CHOOSE-RANDOMNESS(🧔🏾);
