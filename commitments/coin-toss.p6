@@ -87,7 +87,7 @@ sub CLAIM($player) {
 }
 
 sub CHECK-RESULT($alice-move, $random-number) {
-    my $even = $random-number %% 2;
+    my $odd = ? $random-number % 2;
     my $coin-toss = Coin($odd);
     my $result = $alice-move eq $coin-toss;
 
