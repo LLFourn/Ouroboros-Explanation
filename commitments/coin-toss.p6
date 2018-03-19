@@ -11,7 +11,8 @@ sub infix:<⟹>($sender, %message) {
     say %message.map({ "{.key}: {.value ~~ Int ?? .value.&print-hex !! .value}"}).join("\n");
     say GREEN ~ ('=' x $header.chars) ~ RESET;
 }
-constant @moves := <Tails Heads>;
+
+enum Coin <Heads Tails>;
 
 # Taken from https://tools.ietf.org/html/rfc3526#page-3
 constant \𝒑 = 0xFFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA237327FFFFFFFFFFFFFFFF;
@@ -46,11 +47,12 @@ sub secret-prompt($msg, :$validity-check = True){
     return $res;
 }
 
-sub CHOOSE-MOVE($player) {
+sub CHOOSE-MOVE($player --> Coin) {
     say "$player, choose an outcome.";
-    my $res = secret-prompt('[H]eads or [T]ails?', validity-check => rx:i/H|T/).uc;
-    my $move = @moves.first: *.starts-with($res);
-    return $move;
+    secret-prompt(
+        '[H]eads or [T]ails?',
+        parse => { Coin::.values.first(*.starts-with(.uc)) }
+    );
 }
 
 sub CHOOSE-RANDOMNESS($player --> ℤ𝒒) {
@@ -86,7 +88,7 @@ sub CLAIM($player) {
 
 sub CHECK-RESULT($alice-move, $random-number) {
     my $even = $random-number %% 2;
-    my $coin-toss = @moves[$even];
+    my $coin-toss = Coin($odd);
     my $result = $alice-move eq $coin-toss;
 
     say "============";
@@ -100,7 +102,7 @@ sub MAIN {
     # Keep a hint around so Alice doesn't have to remember her number
     my $*HINT;
     # Prompt alice for heads or tails;
-    my \𝑚 = CHOOSE-MOVE(🧑🏻);
+    my Coin \𝑚 = CHOOSE-MOVE(🧑🏻);
 
     my 𝔾 \𝒄 = do {
         # Prompt alice for her randomness
