@@ -35,15 +35,12 @@ sub read-line {
     return $res;
 }
 
-sub secret-prompt($msg, :$validity-check = True){
+sub secret-prompt($msg, :&parse = {$_}) {
     say $msg;
-    my $res = read-line();
     # Read a line from STDIN
-    until $res ~~ $validity-check {
-        say "invalid value - must match {$validity-check.gist}. Try again.";
-        $res = read-line();
+    until (my $res = parse(read-line())) !~~ Nil {
+        say "Invalid value. Try again.";
     }
-    # Put n number of Xs over the previous line
     return $res;
 }
 
@@ -56,18 +53,13 @@ sub CHOOSE-MOVE($player --> Coin) {
 }
 
 sub CHOOSE-RANDOMNESS($player --> ℤ𝒒) {
-    my $randomness = secret-prompt(
+    secret-prompt(
         "$player, behave [H]onestly? or enter your own integer:",
-        validity-check => /^ H | (.+) <?{ quietly try $/.Int ~~ ℤ𝒒 }> $/,
+        parse => {
+            when 'H' { $ℤ𝒒.pick }
+            default  { (try quietly .Int) or Nil  }
+        }
     );
-
-    return do given $randomness {
-                 # Clever way of ensuring we don't get powers of two or 0
-                 # Check if the least signigicant bit is the same as the
-                 # most significant bit.
-        when 'H' { $ℤ𝒒.roll(*).first({ .lsb !~~ .msb }) }
-        default { .Int }
-    }
 }
 
 sub COMMIT(ℤ𝒒 \𝒙 --> 𝔾) { expmod(𝒈, 𝒙, 𝒑) }
