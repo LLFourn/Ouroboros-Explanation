@@ -72,18 +72,15 @@ sub CHOOSE-RANDOMNESS($player --> ℤ𝒒) {
 
 sub COMMIT(ℤ𝒒 \𝒙 --> 𝔾) { expmod(𝒈, 𝒙, 𝒑) }
 
-sub CLAIM($player) {
-    # cheating
-    my $randomness = secret-prompt(
+sub CLAIM($player --> ℤ𝒒) {
+    secret-prompt(
         "$player, what do you claim your randomness was?" ~
         "\n([H] to use the true value)",
-        validity-check => /^ H | .+ <?{ quietly try $/.Int ~~ $ℤ𝒒 }> $/
+        parse => {
+            when 'H' { $*HINT }
+            default  {  (try quietly .Int) or Nil }
+        }
     );
-    given $randomness {
-        when 'H' { $randomness = $*HINT }
-        default  { .Int }
-    }
-    return $randomness;
 }
 
 sub CHECK-RESULT($alice-move, $random-number) {
