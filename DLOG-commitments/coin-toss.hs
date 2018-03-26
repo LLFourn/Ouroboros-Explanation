@@ -11,7 +11,7 @@ import Data.Function
 
 data Player = Alice|Rob deriving (Show, Eq)
 (👩) = Alice
-(👽) = Rob
+(👱) = Rob
 
 data Coin = Heads|Tails deriving (Show, Enum, Eq)
 
@@ -149,8 +149,8 @@ main = do 𝑚 <- chooseMove (👩)
             (👩) ⟹ [("move", MW 𝑚), ("commitment", MW 𝑐)]
 
             -- Rob doesn't have to choose a move, his move is just the opposite of Alice's
-            𝑠ᵣ <- chooseRandomness (🧔)
-            (🧔) ⟹ [("randomness", 𝑠ᵣ)]
+            𝑠ᵣ <- chooseRandomness (👱)
+            (👱) ⟹ [("randomness", 𝑠ᵣ)]
 
             -- Ask Alice what her claim was
             𝑠ₐʹ <- (claim (👩) 𝑠ₐ)
