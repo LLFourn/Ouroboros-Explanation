@@ -49,7 +49,7 @@ sub secret-prompt($msg -->Str:D){
     return $res;
 }
 
-sub CHOOSE-SECRET($player) {
+sub CHOOSE-SECRET($player -->Str:D) {
     secret-prompt("$player, give me a random secret (remember it):");
 }
 
