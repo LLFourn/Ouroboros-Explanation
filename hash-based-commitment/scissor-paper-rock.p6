@@ -21,9 +21,13 @@ sub COMMIT($secret, $move) {
     return @sha256bytes».&byte-to-hex.join;
 }
 
+# The possible moves
+enum Move <Scissor Paper Rock>;
+
 # Our two players
-sub term:<🧑🏻> { 'Alice' }
-sub term:<🧔🏾> { 'Rob'  }
+enum Player <Alice Rob>;
+constant \term:<🧑🏻> = Alice;
+constant \term:<🧔🏾> = Rob;
 
 # Used to print clearly what is actually being sent between the parties
 sub infix:<⟹>($sender, %message) {
@@ -35,10 +39,8 @@ sub infix:<⟹>($sender, %message) {
     say GREEN ~ ('=' x $header.chars) ~ RESET;
 }
 
-# The possible moves
-constant @moves := <Scissor Paper Rock>;
 
-sub secret-prompt($msg){
+sub secret-prompt($msg -->Str:D){
     say $msg;
     # Read a line from STDIN
     my $res = $*IN.get();
@@ -52,10 +54,10 @@ sub CHOOSE-SECRET($player) {
 }
 
 # Prompt to choose Scissor, Paper or Rock
-sub S-P-R {
+sub S-P-R (-->Move:D){
     my $res = secret-prompt('[S]cissor [P]aper [R]ock?').uc;
     if $res eq <S P R>.any {
-        return @moves.first(*.starts-with($res));
+        return Move::.values.first(*.starts-with($res));
     }
     else {
         say "'$res' is an invalid choice.";
@@ -64,20 +66,20 @@ sub S-P-R {
     return $res;
 }
 
-sub CHOOSE-MOVE($player) {
+sub CHOOSE-MOVE(Player:D $player --> Move:D) {
     say "$player, choose a move.";
     my $move =  S-P-R();
     return $move;
 }
 
-sub CLAIM($player) {
+sub CLAIM(Player:D $player --> List:D) {
     my $secret = secret-prompt("$player, what was your secret?");
     say "$player, what do you claim to have chosen?";
     my $claim = S-P-R();
     return $secret, $claim;
 }
 
-sub CHECK-RESULT($moveₐ, $moveᵣ) {
+sub CHECK-RESULT(Move:D $moveₐ, Move:D $moveᵣ) {
     my $result = do given ($moveₐ, $moveᵣ)
     {
         when $moveₐ eq $moveᵣ     { Nil } # tie
@@ -91,36 +93,37 @@ sub CHECK-RESULT($moveₐ, $moveᵣ) {
     say $result ?? "$result wins!" !! 'Alice and Bob tied!';
 }
 
+sub MAIN {
+    my \𝑐 = do {
+        # Prompt alice for her move and secret
+        my \𝑠 = CHOOSE-SECRET(🧑🏻);
+        my \𝑚 = CHOOSE-MOVE(🧑🏻);
+        # Return the resulting commitment
+        COMMIT(𝑠, 𝑚);
+    };
 
-my \𝒄 = do {
-    # Prompt alice for her move and secret
-    my \𝒔 = CHOOSE-SECRET(🧑🏻);
-    my \𝑚 = CHOOSE-MOVE(🧑🏻);
-    # Return the resulting commitment
-    COMMIT(𝒔, 𝑚);
-};
+    # Alice sends her commitment to Rob
+    🧑🏻 ⟹ { commitment => 𝑐 };
 
-# Alice sends her commitment to Rob
-🧑🏻 ⟹ { commitment => 𝒄 };
+    # Rob sends his move to Alice
+    my \𝑚ᵣ = CHOOSE-MOVE(🧔🏾);
+    🧔🏾 ⟹ { move => 𝑚ᵣ };
 
-# Rob sends his move to Alice
-my \𝑚ᵣ = CHOOSE-MOVE(🧔🏾);
-🧔🏾 ⟹ { move => 𝑚ᵣ };
+    # Alice sends what she claims to have originally chosen to Rob
+    # along with the secret
+    my (\𝑠ʹ, \𝑚ʹ) = CLAIM(🧑🏻);
+    🧑🏻 ⟹  { secret => 𝑠ʹ, move => 𝑚ʹ };
 
-# Alice sends what she claims to have originally chosen to Rob
-# along with the secret
-my (\𝒔ʹ, \𝑚ʹ) = CLAIM(🧑🏻);
-🧑🏻 ⟹  { secret => 𝒔ʹ, move => 𝑚ʹ };
+    my \𝑐ʹ = COMMIT(𝑠ʹ, 𝑚ʹ);
 
-my \𝒄ʹ = COMMIT(𝒔ʹ, 𝑚ʹ);
+    say "Alice's claim: {𝑐ʹ}";
 
-say "Alice's claim: {𝒄ʹ}";
-
-if 𝒄ʹ eq  𝒄 {
-    say ‘Alice's claim is the same as her commitment.’;
-    CHECK-RESULT(𝑚ʹ, 𝑚ᵣ);
-}
-else {
-    say "Alice is lying! Her claim is not the same as her commitment.";
-    say "Rob wins by default!";
+    if 𝑐ʹ eq  𝑐 {
+        say ‘Alice's claim is the same as her commitment.’;
+        CHECK-RESULT(𝑚ʹ, 𝑚ᵣ);
+    }
+    else {
+        say "Alice is lying! Her claim is not the same as her commitment.";
+        say "Rob wins by default!";
+    }
 }
