@@ -96,15 +96,15 @@ chooseMove player = do
         find (\x -> head (show x) == c)  [(Heads), (Tails)]
     )
 
-readMaybeGE :: Group -> String -> Maybe Integer
-readMaybeGE g string = case (readMaybe string) of
+readMaybeGroup :: Group -> String -> Maybe Integer
+readMaybeGroup g string = case (readMaybe string) of
   Just x | member g x -> Just x
   _                   -> Nothing
 
 chooseRandomness_ :: String -> Maybe (IO Integer)
 chooseRandomness_ choice =  case choice of
       "H"    -> Just (pick ℤ𝑞)
-      string -> case (readMaybeGE ℤ𝑞 string) of
+      string -> case (readMaybeGroup ℤ𝑞 string) of
         Nothing -> Nothing
         Just x  -> Just (return x)
 
@@ -120,7 +120,7 @@ commit 𝑥 | member ℤ𝑞 𝑥 = expmod 𝑔 𝑥 𝑝
 chooseClaim_ :: Integer -> String -> Maybe Integer
 chooseClaim_ hint choice = case choice of
       "H"    -> Just hint
-      string -> readMaybeGE ℤ𝑞 string
+      string -> readMaybeGroup ℤ𝑞 string
 
 
 claim :: Player -> Integer -> IO Integer
