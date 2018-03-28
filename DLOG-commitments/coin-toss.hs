@@ -145,14 +145,14 @@ main :: IO()
 main = do 𝑚 <- chooseMove (👩)
           𝑠ₐ <- chooseRandomness (👩)
           let 𝑐 = commit(𝑠ₐ) in do
-            -- Send the commitment and the move in the clear to Rob
+            -- Alice sends her commitment and her move in the clear to Rob
             (👩) ⟹ [("move", MW 𝑚), ("commitment", MW 𝑐)]
 
-            -- Rob doesn't have to choose a move, his move is just the opposite of Alice's
+            -- Rob sends his randomness in the clear to Alice
             𝑠ᵣ <- chooseRandomness (👱)
             (👱) ⟹ [("randomness", 𝑠ᵣ)]
 
-            -- Ask Alice what her claim was
+            -- Alice sends her claim to Rob
             𝑠ₐʹ <- (claim (👩) 𝑠ₐ)
             (👩) ⟹ [("randomness", 𝑠ₐʹ)]
 

@@ -104,14 +104,14 @@ sub MAIN {
         COMMIT(𝑠ₐ);
     }
 
-    # Send the commitment and the move in the clear to Rob
+    # Alice sends her commitment and her move in the clear to Rob
     🧑🏻 ⟹  ( commitment => 𝑐, move => 𝑚 );
 
-    # Rob doesn't have to choose a move, his move is just the opposite of Alice's
+    # Rob sends his randomness in the clear to Alice
     my ℤ𝑞 \𝑠ᵣ = CHOOSE-RANDOMNESS(🧔🏾);
     🧔🏾 ⟹ ( randomness => 𝑠ᵣ );
 
-    # Ask Alice what her claim was
+    # Alice sends her claim to Rob
     my ℤ𝑞 \𝑠ₐʹ = CLAIM(🧑🏻);
     🧑🏻 ⟹  ( randomness => 𝑠ₐʹ );
 
