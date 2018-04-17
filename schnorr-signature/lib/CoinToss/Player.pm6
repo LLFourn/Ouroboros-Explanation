@@ -47,7 +47,6 @@ my class Epoch {
 
     method reveal($player, Int:D $flip) {
         %.flips{$player} = $flip;
-
         if %.flips == %.commitments {
             $!reveal-complete.keep(%.flips.values);
         }
@@ -77,8 +76,9 @@ class CoinToss::Player {
         }
     }
 
-    method start($network, $rounds) {
-        $!connection = $network.connect(self);
+    method set-connection($!connection) {}
+
+    method play(:$rounds!) {
         $!epoch = Epoch.now;
 
         $!connection.receive-message.tap: -> $message {
