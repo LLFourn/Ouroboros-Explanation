@@ -169,11 +169,11 @@ class CoinToss::Player {
             }
             when 'REVEAL' {
                 with $!epoch.commitments{$from} -> \𝑐 {
-                    my \𝑠ʹ = %kv<FLIP>;
-                    my \𝑐ʹ = COMMIT(𝑠ʹ);
+                    my \𝜌ʹ = %kv<FLIP>;
+                    my \𝑐ʹ = COMMIT(𝜌ʹ);
 
                     if 𝑐 == 𝑐ʹ {
-                        $!epoch.reveal($from, 𝑠ʹ);
+                        $!epoch.reveal($from, 𝜌ʹ);
                         self.log: "registered $from’s revealed coin flip";
                     }
                     else {
@@ -198,8 +198,8 @@ class CoinToss::Player {
     }
 
     method flip-and-commit {
-        my \𝑠 = $!epoch.flips{$!name}        = pick-ℤ𝑞;
-        my \𝑐  = $!epoch.commitments{$!name} = COMMIT(𝑠);
+        my \𝜌 = $!epoch.flips{$!name}        = pick-ℤ𝑞;
+        my \𝑐  = $!epoch.commitments{$!name} = COMMIT(𝜌);
         my \𝑚 = $!epoch.moves{$!name}       = Coin::.values.pick;
 
         my $msg-body := pack-message (
@@ -232,8 +232,8 @@ class CoinToss::Player {
     method process-result {
         my (%flips, %moves, %scores) := (.flips, .moves, .scores given $!epoch);
 
-        my \ρ = [⊕] %flips.values;
-        my $odd = not ρ %% 2; # Not divisible by two
+        my \𝜌 = [⊕] %flips.values;
+        my $odd = not 𝜌 %% 2; # Not divisible by two
         my $final-coin-toss = Coin($odd.Int); # 0 = Heads, 1 = Tails
 
         self.log: "sees the result as {$final-coin-toss.gist}";
