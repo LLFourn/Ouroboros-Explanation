@@ -67,7 +67,6 @@ class CoinToss::Player {
     has $.private-key;
     has $.public-key;
     has $.connection;
-    has %!scores;
     has Epoch $.epoch;
 
     method TWEAK {
