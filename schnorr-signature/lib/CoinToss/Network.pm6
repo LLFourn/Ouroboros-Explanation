@@ -13,7 +13,9 @@ class Network {
 
     method send-message($sender, $message) {
         for @!players.grep(none($sender))  -> $player {
+            # Drop the message with probability
             if 1.rand > $!loss-prob {
+                # Delay the delivery some value less than the max delay
                 Promise.in((0..$!max-delay).pick).then: {
                     %!suppliers{$player}.emit: $message;
                 }

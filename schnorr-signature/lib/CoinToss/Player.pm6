@@ -13,8 +13,10 @@ my class X::CoinToss::Abort is Exception {
     }
 }
 
+# alias bitwise xor to the mathematical symbol
 constant &infix:<⊕> := &[+^];
 
+#| private class to store the state of a the current epoch
 my class Epoch {
 
     has Instant:D  $.start is required;
@@ -61,14 +63,17 @@ my class Epoch {
 
 }
 
+#| Stores a player's view of the system
 class CoinToss::Player {
 
+    #| The player's registered public key for other players by their name
     has %.pubkey-registry;
     has $.name is required;
     has $.private-key;
     has $.public-key;
     #| The connection to the outside world
     has CoinToss::Connection $.connection;
+    #| The current epoch
     has Epoch $.epoch;
 
     method TWEAK {
@@ -79,9 +84,12 @@ class CoinToss::Player {
 
     method set-connection($!connection) {}
 
+    #| Play a certain number of rounds
     method play(:$rounds!) {
+        self.log: "STARTS PLAYING for $rounds rounds";
         $!epoch = Epoch.now;
 
+        # Whenever a message arrives, process it
         $!connection.receive-message.tap: -> $message {
             self.receive-message($message);
             CATCH {
@@ -89,9 +97,12 @@ class CoinToss::Player {
                 default { .note }
             }
         };
+        # Register your public key with the other players
         self.register();
 
+        # The game loop
         for ^$rounds {
+            self.log: "waiting for next epoch to start";
             $!epoch = await $!epoch.wait-till-next-epoch;
 
             self.log: "started epoch: {$!epoch.id}";
@@ -147,7 +158,7 @@ class CoinToss::Player {
 
         # Get previously registered public key
         my $pubkey = %.pubkey-registry{$from}
-          or abort "$from hasn't registered";
+          or abort "don't have $from’s public key";
 
         # Check the epoch the message was sent in is this Epoch
         %kv<EPOCH> ~~ $!epoch.start
@@ -165,7 +176,7 @@ class CoinToss::Player {
                 if not $!epoch.moves{$from}:exists {
                     $!epoch.commitments{$from} = 𝑐;
                     $!epoch.moves{$from} = 𝑚;
-                    self.log: "registered $from’s move ({𝑚.gist}) and commitment";
+                    self.log: "received $from’s move ({𝑚.gist}) and commitment";
                 }
             }
             when 'REVEAL' {
@@ -175,7 +186,7 @@ class CoinToss::Player {
 
                     if 𝑐 == 𝑐ʹ {
                         $!epoch.reveal($from, 𝜌ʹ);
-                        self.log: "registered $from’s revealed coin flip";
+                        self.log: "received $from’s revealed coin flip";
                     }
                     else {
                         abort "randomness didn't match commitment";
@@ -213,6 +224,7 @@ class CoinToss::Player {
 
         my $signature := SIGN($msg-body, $!private-key);
         my $full-msg := append-signature $msg-body, $signature;
+        self.log: "broadcasting my commitment and move";
         $!connection.send-message: $full-msg;
     }
 
@@ -226,7 +238,7 @@ class CoinToss::Player {
 
         my $signature := SIGN($msg-body, $!private-key);
         my $full-msg := append-signature $msg-body, $signature;
-
+        self.log: "broadcasting my coin flip";
         $!connection.send-message($full-msg);
     }
 
@@ -237,7 +249,7 @@ class CoinToss::Player {
         my $odd = not 𝜌 %% 2; # Not divisible by two
         my $final-coin-toss = Coin($odd.Int); # 0 = Heads, 1 = Tails
 
-        self.log: "sees the result as {$final-coin-toss.gist}";
+        self.log: "sees the coin flip as {$final-coin-toss.gist}";
 
         for %moves.kv -> $player, $move {
             if not %flips{$player}:exists {
@@ -248,11 +260,11 @@ class CoinToss::Player {
             }
         }
 
-        self.log: "At the end of epoch {$!epoch.id} scores are: {%scores.gist}";
+        self.log: "my scores at epoch {$!epoch.id} are: {%scores.map:{ .kv.join(':') }}";
     }
 
     method log($msg) {
-        note "[{$!name.uc}]: ",  $msg;
+        note "[{sprintf '%5.s', $!name.uc}]: ",  $msg;
     }
 
 }
