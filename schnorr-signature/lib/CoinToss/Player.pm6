@@ -63,7 +63,7 @@ my class Epoch {
 class CoinToss::Player {
 
     has %.pubkey-registry;
-    has $.name;
+    has $.name is required;
     has $.private-key;
     has $.public-key;
     has $.connection;
