@@ -6,7 +6,7 @@ class Connection {...}
 
 class Network {
     has @!players;
-    has $!max-delay = 0;
+    has $.max-delay = 0;
     has %!suppliers;
     has $.rounds = 3;
     has $.loss-prob = 0;

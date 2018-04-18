@@ -5,7 +5,7 @@ my @players = my ($alice, $bob, $oscar) = <Alice Bob Oscar>.map: {
     CoinToss::Player.new(:name($_))
 };
 
-my $network = CoinToss::Network.new(:5delay);
+my $network = CoinToss::Network.new(max-delay => 3);
 
 for @players {
     $network.connect-player($_)
