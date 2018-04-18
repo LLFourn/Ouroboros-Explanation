@@ -1,5 +1,6 @@
 use CoinToss::Protocol;
 use CoinToss::DLOG;
+use CoinToss::Network;
 
 my class X::CoinToss::Abort is Exception {
     has Str:D $.reason is required;
@@ -66,7 +67,8 @@ class CoinToss::Player {
     has $.name is required;
     has $.private-key;
     has $.public-key;
-    has $.connection;
+    #| The connection to the outside world
+    has CoinToss::Connection $.connection;
     has Epoch $.epoch;
 
     method TWEAK {
