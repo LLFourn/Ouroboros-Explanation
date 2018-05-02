@@ -1,5 +1,5 @@
 [package]
-name = "rust_coinflip"
+name = "rust_cointoss"
 version = "0.1.0"
 authors = ["LLFourn <lloyd.fourn@gmail.com>"]
 
