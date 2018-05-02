@@ -136,7 +136,7 @@ checkResult aliceMove randomNumber =
       in
     putStrLn (
      "============\n" ++
-     "The final random number is is:\n0x" ++ (showHex randomNumber "\n") ++
+     "The final random number is:\n0x" ++ (showHex randomNumber "\n") ++
      "Which is " ++ (if odd == 1 then "odd" else "even") ++ ". So, the coin-toss resulted in " ++ (show coinToss) ++ "\n" ++
      "Alice chose " ++ (show aliceMove) ++ ", so " ++ (if result then "Alice" else "Rob") ++ " wins!"
     )
