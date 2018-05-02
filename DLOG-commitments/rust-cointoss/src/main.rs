@@ -65,7 +65,7 @@ fn floor_zero(number: usize) -> usize {
     if number > 0 { number as usize } else { 0 }
 }
 
-// Reads a line and then overwrites the input with
+// Reads a line and then overwrites the input with XXXXXXs
 fn read_line() -> String {
     let stdin = io::stdin();
     let line = stdin.lock().lines().next().unwrap().unwrap();
