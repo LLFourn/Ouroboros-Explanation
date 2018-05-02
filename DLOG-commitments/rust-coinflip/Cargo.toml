@@ -1,0 +1,12 @@
+[package]
+name = "rust_coinflip"
+version = "0.1.0"
+authors = ["LLFourn <lloyd.fourn@gmail.com>"]
+
+[dependencies]
+num-bigint = "0.1"
+rand = "0.4.2"
+lazy_static = "1.0"
+num-derive = "0.2"
+num-traits  = "0.2"
+num-integer = "0.1"
