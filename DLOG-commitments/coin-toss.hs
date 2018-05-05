@@ -80,8 +80,8 @@ readLine = do line <- getLine
 
 secretPrompt :: (String -> Maybe a) -> IO a
 secretPrompt parse = do
-  do line <- readLine
-     case (parse line) of
+  line <- readLine
+  case (parse line) of
        Nothing -> do putStrLn "Invalid value. Try again."
                      secretPrompt parse
        Just x -> return x
