@@ -82,8 +82,8 @@ secretPrompt :: (String -> Maybe a) -> IO a
 secretPrompt parse = do
   line <- readLine
   case (parse line) of
-       Nothing -> do putStrLn "Invalid value. Try again."
-                     secretPrompt parse
+       Nothing -> putStrLn "Invalid value. Try again." >>
+                  secretPrompt parse
        Just x -> return x
 
 chooseMove :: Player -> IO Coin
