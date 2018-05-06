@@ -1,8 +1,8 @@
 # The players
 enum Player <Alice Rob>;
 
-constant \term:<🧑🏻> = Alice;
-constant \term:<🧔🏾> = Rob;
+constant \term:<👩> = Alice;
+constant \term:<👱> = Rob;
 
 enum Coin <Heads Tails>;
 
@@ -86,7 +86,7 @@ sub CHECK-RESULT(Coin $alice-move, Int $random-number) {
     ============
     The final random number is:\n{gist $random-number}
     Which is { $odd ?? 'odd' !! 'even' }. So, the coin-toss resulted in $coin-toss.
-    Alice chose $alice-move, so { $result ?? 🧑🏻 !! 🧔🏾} wins!
+    Alice chose $alice-move, so { $result ?? 👩 !! 👱 } wins!
     END
 }
 
@@ -95,40 +95,40 @@ sub MAIN {
     # Keep a hint around so Alice doesn't have to remember her number
     my $*HINT;
     # Prompt alice for heads or tails;
-    my Coin \𝑚 = CHOOSE-MOVE(🧑🏻);
+    my Coin \𝑚 = CHOOSE-MOVE(👩);
 
     my 𝔾 \𝑐 = do {
         # Prompt alice for her randomness
-        $*HINT = my ℤ𝑞 \𝑠ₐ = CHOOSE-RANDOMNESS(🧑🏻);
+        $*HINT = my ℤ𝑞 \𝑠ₐ = CHOOSE-RANDOMNESS(👩);
         # Return the resulting commitment
         COMMIT(𝑠ₐ);
     }
 
     # Alice sends her commitment and her move in the clear to Rob
-    🧑🏻 ⟹  ( commitment => 𝑐, move => 𝑚 );
+    👩 ⟹  ( commitment => 𝑐, move => 𝑚 );
 
     # Rob sends his randomness in the clear to Alice
-    my ℤ𝑞 \𝑠ᵣ = CHOOSE-RANDOMNESS(🧔🏾);
-    🧔🏾 ⟹ ( randomness => 𝑠ᵣ );
+    my ℤ𝑞 \𝑠ᵣ = CHOOSE-RANDOMNESS(👱);
+    👱 ⟹ ( randomness => 𝑠ᵣ );
 
     # Alice sends her claim to Rob
-    my ℤ𝑞 \𝑠ₐʹ = CLAIM(🧑🏻);
-    🧑🏻 ⟹  ( randomness => 𝑠ₐʹ );
+    my ℤ𝑞 \𝑠ₐʹ = CLAIM(👩);
+    👩 ⟹  ( randomness => 𝑠ₐʹ );
 
     # Calculate what the commitment should be from the claim
     my 𝔾 \𝑐ʹ = COMMIT(𝑠ₐʹ);
 
     # Check they're the same
     if 𝑐ʹ eq  𝑐 {
-        say "{🧑🏻}'s claim is the same as her commitment.";
+        say "{👩}'s claim is the same as her commitment.";
         my \𝑠 = 𝑠ᵣ ⊕ 𝑠ₐʹ;
         CHECK-RESULT(𝑚, 𝑠);
     }
     else {
         print qq:to/END/;
-        say "{🧑🏻}'s claim: {gist 𝑐ʹ}";
-        say "{🧑🏻} is lying! Her claim is not the same as her commitment.";
-        say "{🧔🏾} wins by default!";
+        say "{👩}'s claim: {gist 𝑐ʹ}";
+        say "{👩} is lying! Her claim is not the same as her commitment.";
+        say "{👱} wins by default!";
         END
     }
 }
