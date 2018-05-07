@@ -87,8 +87,8 @@ sub CLAIM(Player:D $player --> ℤ𝑞) {
     });
 }
 
-sub CHECK-RESULT(Coin $alice-move, Int $random-number) {
-    my $odd = ? $random-number % 2;
+sub CHECK-RESULT(Coin $alice-move, Int:D $random-number) {
+    my $odd = so $random-number % 2;
     my $coin-toss = Coin($odd);
     my $result = $alice-move eq $coin-toss;
 
