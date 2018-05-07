@@ -141,7 +141,7 @@ fn claim(player: Player, hint: &BigUint) -> BigUint {
         match line {
             // Is clone the right thing to do here? I wonder if
             // there's some way to design secret_prompt to avoid it.
-            "H" | "h" => Some(hint.clone()),
+            "H" | "h" => Some(hint.to_owned()),
             _ => { parse_bigint(line.as_ref()) }
         }
     })
