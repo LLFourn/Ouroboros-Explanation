@@ -88,8 +88,8 @@ sub CLAIM(Player:D $player --> ℤ𝑞) {
 }
 
 sub CHECK-RESULT(Coin $alice-move, Int:D $random-number) {
-    my $odd = so $random-number % 2;
-    my $coin-toss = Coin($odd);
+    my $odd = so ($random-number % 2); # Is the coin toss odd
+    my $coin-toss = Coin($odd.Int);    # Flase -> 0 -> Heads, True -> 1 -> Tails
     my $result = $alice-move eq $coin-toss;
 
     print qq:to/END/;
